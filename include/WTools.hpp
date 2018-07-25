@@ -89,7 +89,7 @@ using std::complex;
         ///
         auto deconvolve(const double* input, const double* response) -> double*;
 
-	auto fft(fftw_complex* input) -> fftw_complex*;
+	void fft(int size, fftw_complex* input, fftw_complex* output);
 
 
     }; // END: class FWTransform

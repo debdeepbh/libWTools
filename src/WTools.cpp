@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 #include "WTools.hpp"
 
@@ -82,14 +83,12 @@ auto WTools::convolve(const double* A, const double* B) -> double* {
 }
 
 // Basic fft
-fftw_complex* WTools::fft(fftw_complex* A)
+void WTools::fft(int N, fftw_complex* A, fftw_complex* B)
 {
-	int N = sizeof(A)/sizeof(fftw_complex);
-	fftw_complex B[N];
-    fftw_plan plan_a = fftw_plan_dft_1d(N, A, B, FFTW_FORWARD, FFTW_ESTIMATE);
-    fftw_execute(plan_a); /* repeat as needed */
-    fftw_destroy_plan(plan_a);
+		fftw_plan plan_a = fftw_plan_dft_1d(N, A, B, FFTW_FORWARD, FFTW_ESTIMATE);
+		fftw_execute(plan_a); /* repeat as needed */
+		fftw_destroy_plan(plan_a);
     //fftw_free(B);
-    return B;
+    //return B;
 }
 
