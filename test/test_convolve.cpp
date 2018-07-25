@@ -1,20 +1,22 @@
 #include <iostream>
+#include <vector>
 #include <WTools.hpp>
 
 using namespace std;
 
 int main()
 {
-	WTools wtools{4};
-	fftw_complex A[4] = {{0,0},{1,0},{0,0},{0,0}};
-	fftw_complex C[4];
-       	wtools.fft(4, A, C);
-	for(int i=0; i<4; i++)
-	{
-		for(int j=0; j<2; j++)
-		{
-			cout << C[i][j] << '\n' << endl;
-		}
-	}
+
+	int N= 4;
+	complex<double> A[N] = {{2,0},{1,0},{3,0},{4,0}};
+	complex<double> B[N] = {{2,0},{1,0},{3,0},{4,0}};
+	complex<double> C[N];
+	complex<double> temp[N];
+	//
+	//WTools::fft(N,A,temp);
+	//
+	WTools::convolve(N,A,B,C);
+	WTools::cxprint(N, C);
+
 	return 0;
 }
