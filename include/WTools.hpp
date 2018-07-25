@@ -42,6 +42,13 @@ using namespace std;
 	/// circular convolution
         auto convolve(int length, complex<double>* input1, complex<double>* input2, complex<double>* output) -> void;
 
+	// Downsample a vector of even length
+	// Length of B must be N/2, where, length of A is N
+	auto down(int N, complex<double>* A, complex<double>* B) -> void;
+
+	// folds a vector in half
+	// Length of B must be N/2, where, length of A is N
+	auto fold(int N, complex<double>* A, complex<double>* B) -> void;
 
 
 

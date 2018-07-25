@@ -6,6 +6,15 @@
 #include "WTools.hpp"
 
 
+// Print a complex vector
+void WTools::cxprint(int N, complex<double>* A)
+{
+	for(int i=0; i<N; i++)
+	{
+		std::cout << A[i] << '\t';
+	}
+		std::cout << std::endl;
+}
 
 // Basic fft
 void WTools::fft(int N, complex<double>* A, complex<double>* B)
@@ -37,6 +46,8 @@ void WTools::convolve(int N, complex<double>* A, complex<double>* B, complex<dou
 	complex<double> fA[N];
 	complex<double> fB[N];
 	complex<double> fC[N];
+
+	// compute the fft of A and B and store in fA and fB
 	WTools::fft(N, A, fA);
 	WTools::fft(N, B, fB);
 
@@ -44,17 +55,46 @@ void WTools::convolve(int N, complex<double>* A, complex<double>* B, complex<dou
 	{
 		fC[i] = fA[i]*fB[i];
 	}
+
+	// ifft of fC stored in C
 	WTools::ifft(N, fC, C);	
 }
 
-// Print a complex vector
-void WTools::cxprint(int N, complex<double>* A)
-{
-	for(int i=0; i<N; i++)
-	{
-		std::cout << A[i] << '\t';
+
+// Downsample a vector of even length
+// Length of B must be N/2, where, length of A is N
+void WTools::down(int N, complex<double>* A, complex<double>* B) {
+	// check even
+	if( N%2 == 1) {
+		// error message
+		std::cout << "First vector is not of even length" << std::endl;
+	} else {
+		for(int k=0; k<N/2; k++) {
+			B[k] = A[k*2];
+		}
 	}
-		std::cout << std::endl;
 }
+
+// Folds a vector A of length N in half and adds it to produce B of length N/2
+void WTools::fold(int N, complex<double>* A, complex<double>* B) {
+	// check even
+	if( N%2 == 1) {
+		// error message
+		std::cout << "First vector is not of even lenght" << std::endl;
+	} else {
+		for(int k=0; k<N/2; k++) {
+			B[k] = A[k] + A[N/2+k];
+		}
+	}
+}
+
+// recursive implementation of wavelet transform
+// % wavelet transform of z wrt parent wavelets u and v with smallest possible dimension sdim
+// e.g. for p-th stage wavelets, sdim = N/2^(p-1)
+// 
+
+
+
+		
 
 
