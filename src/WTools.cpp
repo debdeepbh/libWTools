@@ -76,6 +76,18 @@ void WTools::down(int N, complex<double>* A, complex<double>* B) {
 	}
 }
 
+// Upsample a vector 
+// Length of B must be 2N, where, length of A is N
+void WTools::up(int N, complex<double>* A, complex<double>* B) {
+	for(int k=0; k<N; k++) {
+		B[2*k] = A[k];
+	}
+	for(int k=0; k<N; k++) {
+		B[2*k+1] = (complex<double> (0,0));
+	}
+
+}
+
 // Folds a vector A of length N in half and adds it to produce B of length N/2
 void WTools::fold(int N, complex<double>* A, complex<double>* B) {
 	// check even
@@ -91,10 +103,9 @@ void WTools::fold(int N, complex<double>* A, complex<double>* B) {
 
 // recursive implementation of wavelet transform
 // % wavelet transform of z wrt parent wavelets u and v with smallest possible dimension sdim
-// e.g. for p-th stage wavelets, sdim = N/2^(p-1)
-
+// e.g. for p-th stage wavelets, sdim = length_z/2^(p-1)
 // z and  w must have same length
-void WTools::wrec(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w)
+void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w)
 {
 	complex<double> first[z_length/2];
 	complex<double> second[z_length/2];
@@ -129,7 +140,7 @@ void WTools::wrec(int z_length, complex<double>* z, int sdim, complex<double>* u
 
 		// get the second part
 		// recursion here in the second part
-		WTools::wrec(z_length/2, downed, sdim, util_folded, vtil_folded, second);
+		WTools::fwt(z_length/2, downed, sdim, util_folded, vtil_folded, second);
 	}
 
 	// concatenate the first and second part
@@ -145,3 +156,54 @@ void WTools::wrec(int z_length, complex<double>* z, int sdim, complex<double>* u
 
 
 
+// recursive implementation of inverse wavelet transform
+void WTools::ifwt(int z_length, complex<double>* z, int sdim, complex<double>* u, complex<double>* v, complex<double>* w)
+{
+	///// implement upsampling
+	complex<double> first[z_length];
+	complex<double> second[z_length];
+
+	// break z into two parts
+	complex<double> z_first[z_length/2];
+	complex<double> z_second[z_length/2];
+	for (int i=0; i<z_length/2; i++)
+		z_first[i] = z[i];
+	for (int i=0; i<z_length/2; i++)
+		z_second[i] = z[i+ z_length/2];
+
+	// get the first part
+	complex<double> upped_first[z_length];
+	WTools::up(z_length/2, z_first, upped_first);
+	WTools::convolve(z_length, upped_first, v, first);
+
+	if( z_length <= 2*sdim )
+	{
+		complex<double> upped_second[z_length];
+		WTools::up(z_length/2, z_second, upped_second);
+		WTools::convolve(z_length, upped_second, u, second);
+	}
+	else
+	{
+		// fold u and v and store in u_folded
+		// and v_folded
+		complex<double> u_folded[z_length/2];
+		complex<double> v_folded[z_length/2];
+		WTools::fold(z_length, u, u_folded);
+		WTools::fold(z_length, v, v_folded);
+
+		// apply recursion
+		complex<double> recur_store[z_length/2];
+		WTools::ifwt(z_length/2, z_second, sdim, u_folded, v_folded, recur_store);
+
+		// upsample the recursion
+		complex<double> upped_recur[z_length];
+		WTools::up(z_length/2, recur_store, upped_recur);
+		WTools::convolve(z_length, upped_recur, u, second);
+	}
+
+	// add the first and second part
+	for(int i=0; i<z_length; i++)
+	{
+		w[i] = first[i] + second[i];
+	}
+}

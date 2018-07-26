@@ -46,11 +46,20 @@ using namespace std;
 	// Length of B must be N/2, where, length of A is N
 	auto down(int N, complex<double>* A, complex<double>* B) -> void;
 
+	// Upsample a vector by zeros in even positions
+	// Length of B must be 2N, where, length of A is N
+	auto up(int N, complex<double>* A, complex<double>* B) -> void;
+
 	// folds a vector in half
 	// Length of B must be N/2, where, length of A is N
 	auto fold(int N, complex<double>* A, complex<double>* B) -> void;
 
-	auto wrec(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w) -> void;
+	// fast wavelet transform
+	// sdim = z_length/2^(p-1) for p-th stage wavelet transform
+	auto fwt(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w) -> void;
 
+	// fast inverse wavelet transform
+	// sdim = z_length/2^(p-1) for p-th stage wavelet transform
+	auto ifwt(int z_length, complex<double>* z, int sdim, complex<double>* u, complex<double>* v, complex<double>* w) -> void;
 
     }; 

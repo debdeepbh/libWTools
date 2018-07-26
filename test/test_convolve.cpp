@@ -14,6 +14,7 @@ int main()
 	complex<double> temp[N];
 	complex<double> D[N/2];
 	complex<double> E[N] = {{2,0},{1,0},{3,0},{4,0},{5,0}};
+	complex<double> F[2*N];
 	//
 	//WTools::fft(N,A,temp);
 	//WTools::cxprint(N, temp);
@@ -24,9 +25,11 @@ int main()
 	//WTools::down(N,A,D);
 	//WTools::cxprint(N/2, D);
 	//
-	WTools::fold(N,A,D);
-	WTools::cxprint(N/2, D);
+	//WTools::fold(N,A,D);
+	//WTools::cxprint(N/2, D);
 	//
+	WTools::up(N, A, F);
+	WTools::cxprint(2*N, F);
 
 	return 0;
 }
