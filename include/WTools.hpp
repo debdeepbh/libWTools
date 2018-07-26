@@ -50,6 +50,7 @@ using namespace std;
 	// Length of B must be N/2, where, length of A is N
 	auto fold(int N, complex<double>* A, complex<double>* B) -> void;
 
+	auto wrec(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w) -> void;
 
 
     }; 

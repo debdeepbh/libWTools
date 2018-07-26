@@ -16,6 +16,7 @@ void WTools::cxprint(int N, complex<double>* A)
 		std::cout << std::endl;
 }
 
+
 // Basic fft
 void WTools::fft(int N, complex<double>* A, complex<double>* B)
 {
@@ -91,10 +92,56 @@ void WTools::fold(int N, complex<double>* A, complex<double>* B) {
 // recursive implementation of wavelet transform
 // % wavelet transform of z wrt parent wavelets u and v with smallest possible dimension sdim
 // e.g. for p-th stage wavelets, sdim = N/2^(p-1)
-// 
 
+// z and  w must have same length
+void WTools::wrec(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w)
+{
+	complex<double> first[z_length/2];
+	complex<double> second[z_length/2];
 
+	complex<double> convolved_first[z_length];
+	// get the first part
+	WTools::convolve(z_length, z, vtil, convolved_first);
+	WTools::down(z_length, convolved_first, first);
 
-		
+	if( z_length <= 2*sdim )
+	{
+		complex<double> convolved[z_length];
+
+		// get the second part
+		WTools::convolve(z_length, z, util, convolved);
+		WTools::down(z_length, convolved, second);
+	}
+	else
+	{
+		// fold util and vtil and store in util_folded
+		// and vtil_folded
+		complex<double> util_folded[z_length/2];
+		complex<double> vtil_folded[z_length/2];
+		WTools::fold(z_length, util, util_folded);
+		WTools::fold(z_length, vtil, vtil_folded);
+
+		// first convolve and then downsample
+		complex<double> convolved[z_length];
+		complex<double> downed[z_length/2];
+		WTools::convolve(z_length, z, util, convolved);
+		WTools::down(z_length, convolved, downed);
+
+		// get the second part
+		// recursion here in the second part
+		WTools::wrec(z_length/2, downed, sdim, util_folded, vtil_folded, second);
+	}
+
+	// concatenate the first and second part
+	for(int i=0; i<z_length/2; i++)
+	{
+		w[i] = first[i];
+	}
+	for(int i=z_length/2; i<z_length; i++)
+	{
+		w[i] = second[i - z_length/2];
+	}
+}
+
 
 

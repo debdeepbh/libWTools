@@ -24,7 +24,7 @@ int main()
 	//WTools::down(N,A,D);
 	//WTools::cxprint(N/2, D);
 	//
-	WTools::fold(5,E,D);
+	WTools::fold(N,A,D);
 	WTools::cxprint(N/2, D);
 	//
 
