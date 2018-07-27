@@ -30,6 +30,9 @@ using namespace std;
         ///
         auto deconvolve(const double* input, const double* response) -> double*;
 
+	// takes a real vector and turns it into a complex vector
+	void makeComplex(int N, double* R, complex<double>* C);
+
 	/// prints a complex vector
         auto cxprint(int length, complex<double>* input) -> void;
 
@@ -62,4 +65,8 @@ using namespace std;
 	// sdim = z_length/2^(p-1) for p-th stage wavelet transform
 	auto ifwt(int z_length, complex<double>* z, int sdim, complex<double>* u, complex<double>* v, complex<double>* w) -> void;
 
+	// given one parent wavelet, get the other
+	 auto getother(int N, complex<double>* u, complex<double>* v) -> void;
+	 // get the parent wavelets from string type
+	void filt(int N, string type, complex<double>* output_u, complex<double>* output_v, complex<double>* output_util, complex<double>* output_vtil);
     }; 
