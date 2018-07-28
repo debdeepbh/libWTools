@@ -58,15 +58,22 @@ using namespace std;
 	auto fold(int N, complex<double>* A, complex<double>* B) -> void;
 
 	// fast wavelet transform
-	// sdim = z_length/2^(p-1) for p-th stage wavelet transform
+	// sdim = z_length/2^p for p-th stage wavelet transform
 	auto fwt(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w) -> void;
 
 	// fast inverse wavelet transform
-	// sdim = z_length/2^(p-1) for p-th stage wavelet transform
+	// sdim = z_length/2^p for p-th stage wavelet transform
 	auto ifwt(int z_length, complex<double>* z, int sdim, complex<double>* u, complex<double>* v, complex<double>* w) -> void;
 
 	// given one parent wavelet, get the other
 	 auto getother(int N, complex<double>* u, complex<double>* v) -> void;
 	 // get the parent wavelets from string type
 	void filt(int N, string type, complex<double>* output_u, complex<double>* output_v, complex<double>* output_util, complex<double>* output_vtil);
+	//
+	// a test vector of length 512
+	void testvec_gen(complex<double>* testvec);
+
+
+	// write the real part of a vector to data/
+	void writeReal(int N, complex<double>* C, string filename);
     }; 

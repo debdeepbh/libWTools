@@ -1,6 +1,6 @@
-#include <vector>
 #include <complex>
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <string>
 
@@ -104,7 +104,7 @@ void WTools::fold(int N, complex<double>* A, complex<double>* B) {
 
 // recursive implementation of wavelet transform
 // % wavelet transform of z wrt parent wavelets u and v with smallest possible dimension sdim
-// e.g. for p-th stage wavelets, sdim = length_z/2^(p-1)
+// e.g. for p-th stage wavelets, sdim = length_z/2^(p)
 // z and  w must have same length
 void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w)
 {
@@ -114,10 +114,14 @@ void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* ut
 	complex<double> convolved_first[z_length];
 	// get the first part
 	WTools::convolve(z_length, z, vtil, convolved_first);
+	//WTools::cxprint(z_length/2, z);
 	WTools::down(z_length, convolved_first, first);
+
 
 	if( z_length <= 2*sdim )
 	{
+		std::cout << "Stopping length of vector is " << z_length << std::endl;
+
 		complex<double> convolved[z_length];
 
 		// get the second part
@@ -126,6 +130,7 @@ void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* ut
 	}
 	else
 	{
+		std::cout << "recursion, z_length "<< z_length << std::endl;
 		// fold util and vtil and store in util_folded
 		// and vtil_folded
 		complex<double> util_folded[z_length/2];
@@ -216,8 +221,9 @@ void WTools::getother(int N, complex<double>* u, complex<double>* v)
 {
 	for(int k=0; k<N; k++)
 	{
-		//  ((x + N) % N ) % N produces positive number for x%N
-		v[k] = pow(-1, k-1)*conj(u[((1-k + N) % N) % N]);
+		//  ((x % N + N ) % N produces positive number for x%N
+		int indexU = ((1-k)% N + N) % N;
+		v[k] = pow(-1, k-1)*conj(u[indexU]);
 	}
 }
 
@@ -299,7 +305,7 @@ void WTools::filt(int N, string filterType, complex<double>* output_u, complex<d
 	if(!filterType.compare("d8") || !filterType.compare("d10") || !filterType.compare("d12") || !filterType.compare("d14") || !filterType.compare("d16") || !filterType.compare("d18") || !filterType.compare("d20"))
 	{
 		// copy u into the beginning of output_u
-		std::cout << "size of u is" << supportLength << std::endl;
+		std::cout << "Support of wavelet basis: " << supportLength << std::endl;
 
 		// pad by zero in the end
 		for(int i=supportLength; i<N; i++)
@@ -313,6 +319,8 @@ void WTools::filt(int N, string filterType, complex<double>* output_u, complex<d
 			output_u[i] = output_u[i]/(pow(2,0.5));
 		}
 
+
+		//
 		// get output_v
 		WTools::getother(N, output_u, output_v);
 	}
@@ -336,3 +344,27 @@ void WTools::filt(int N, string filterType, complex<double>* output_u, complex<d
 	// get the ifft
 	WTools::ifft(N, temp, output_vtil);
 }
+
+// a test vector of length 512
+void WTools::testvec_gen(complex<double>* testvec)
+{
+	for(int j=0;j<512; j++)
+	{
+		testvec[j] = complex<double> ((j-256)*exp(-pow((j-256),2)/512));
+	}
+}
+
+// write the real part of a vector to ./data/
+void WTools::writeReal(int N, complex<double>* C, string filename)
+{
+	ofstream file_stream("data/" + filename);
+	for(int i; i<N; i++)
+	{
+		file_stream << C[i].real() << std::endl;
+	}
+	file_stream.close();
+}
+
+
+
+	
