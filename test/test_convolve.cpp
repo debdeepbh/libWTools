@@ -33,6 +33,7 @@ int main()
 	complex<double> w[512];	// to store the wavelet transform
 	complex<double> z[512];	// to store the inverse wavelet transform
 	complex<double> err[512];	// to store the inverse wavelet transform
+	complex<double> empty[512];
 
 	// compre return 0 if strings are same
 	//if (!typestr.compare("meyer"))
@@ -69,7 +70,7 @@ int main()
 	// sdim for 3rd stage wavelet transform
 	int sdim = 512/pow(2,3);
 	WTools::fwt(512, testvec, sdim, mey_util, mey_vtil, w);
-	WTools::cxprint(512, w);
+	//WTools::cxprint(512, w);
 
 	// perform an inverse wavelet transform
 	WTools::ifwt(512, w, sdim, mey_u, mey_v, z);
@@ -77,8 +78,12 @@ int main()
 	// print the error;
 	for (int k=0; k<512; k++)
 		err[k] =  abs(z[k] - testvec[k]);
-	WTools::writeReal(512, z, "rev");
-	WTools::writeReal(512, err, "err");
+	//WTools::writeReal(512, z, "rev");
+	//WTools::writeReal(512, err, "err");
+	
+	WTools::readReal(512, empty, "rev");
+	WTools::cxprint(512, empty);
+		
 
 	return 0;
 }

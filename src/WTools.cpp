@@ -354,13 +354,28 @@ void WTools::testvec_gen(complex<double>* testvec)
 	}
 }
 
-// write the real part of a vector to ./data/
+// write the real part of a complex array C to ./data/filename
 void WTools::writeReal(int N, complex<double>* C, string filename)
 {
 	ofstream file_stream("data/" + filename);
 	for(int i; i<N; i++)
 	{
 		file_stream << C[i].real() << std::endl;
+	}
+	file_stream.close();
+}
+
+	// reads data/filename with single column of real values to a complex array C
+	void WTools::readReal(int N, complex<double>* C, string filename)
+{
+	ifstream file_stream("data/" + filename);
+	double tempReal;
+	int i=0;
+	while(!file_stream.eof())
+	{
+		file_stream >> tempReal;
+		C[i] = complex<double> ( tempReal );
+		i++;
 	}
 	file_stream.close();
 }

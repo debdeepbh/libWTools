@@ -74,6 +74,9 @@ using namespace std;
 	void testvec_gen(complex<double>* testvec);
 
 
-	// write the real part of a vector to data/
+	// write the real part of a complex array C to ./data/filename
 	void writeReal(int N, complex<double>* C, string filename);
+	
+	// reads ./data/filename with single column of real values to a complex array C
+	void readReal(int N, complex<double>* C, string filename);
     }; 
