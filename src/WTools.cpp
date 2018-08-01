@@ -390,35 +390,42 @@ void WTools::readReal(int N, complex<double>* C, string filename)
 void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSD, double scaling, complex<double>* fOutput, complex<double>* multiplier)
 {
 
-	// a model for the original signal to be supplied to the algorithm
-	// Typically, it is same as the observed signal fSignal
-	// We supply fSignal/Var(fImpulse) instead;
 	complex<double> fOriginal;
 	double powerOriginalSq;
 	double powerImpulseSq;
+
+	// compute the square of the l^2 norm of fImpulse
+	double normSqImpulse = 0;
+	for(int j=0;j<N; j++)
+	{
+		normSqImpulse += pow(abs(fImpulse[j]),2);
+	}
+	
+	
 	//
 	// store a typical element of naive deconvolution
 	complex<double> fNaive;
 
 	for(int i=0; i<N; i++)
 	{
-		// a model for the original signal to be supplied to the algorithm
-		// Typically, it is same as the observed signal fSignal
-		// We supply fSignal/Var(fImpulse) instead;
-		fOriginal = fSignal[i];
-		//double fOriginal = fSignal[i]/Var(fImpulse);
-			// square of fft
-		powerOriginalSq = pow(abs(fOriginal),2);
+		// perform a naive deconvolution
+		fNaive = fSignal[i]/fImpulse[i];
+		
+		// a model for the original signal power to be supplied to the algorithm
+		// Typically, fOriginal is same as the observed signal fSignal
+		// We supply fOriginal = fSignal / ||fImpulse||_2 
+		// i.e. we normalize powOriginalSq by the mean of powImpulseSq
+		powerOriginalSq = pow(abs(fSignal[i]),2) / normSqImpulse * N;
+	//	powerOriginalSq = pow(abs(fSignal[i]),2);
+	//
 		powerImpulseSq = pow(abs(fImpulse[i]),2);
 
-		// perform a naive deconvolution
-		complex<double> naiveDec = fSignal[i]/fImpulse[i];
 
 		// Compute the Fourier multiplier
 		multiplier[i] = powerImpulseSq / ( powerImpulseSq + scaling * N * pow(noiseSD,2) / powerOriginalSq );
 
 		// Perform the scaled Wiener Deconvolution 
-		fOutput[i] = naiveDec * multiplier[i];
+		fOutput[i] = fNaive * multiplier[i];
 
 	}
 }
