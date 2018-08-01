@@ -79,4 +79,13 @@ using namespace std;
 	
 	// reads ./data/filename with single column of real values to a complex array C
 	void readReal(int N, complex<double>* C, string filename);
+
+	// A scaled Wiener deconvolution in the Fourier domain
+	// We supply the fft of the observed signal (fSignal), fft of the impulse response (fImpulse), the standard deviation of the noise (noiseSD) and a scaling constant (0<scaling<1) and it outputs the fft of deconvolved signal (fOutput) and the Fourier shrinkage multipler (multipler) which is needed for the Wavelet based deconvolution method
+	// Assumption: the signal, impulse response and the output (deconvolved signal) are of the same length
+
+	// TODO: implement vector valued noise signal for noise power
+	//
+	void fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSD, double scaling, complex<double>* fOutput, complex<double>* multiplier);
+
     }; 

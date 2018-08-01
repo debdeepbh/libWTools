@@ -366,7 +366,7 @@ void WTools::writeReal(int N, complex<double>* C, string filename)
 }
 
 	// reads data/filename with single column of real values to a complex array C
-	void WTools::readReal(int N, complex<double>* C, string filename)
+void WTools::readReal(int N, complex<double>* C, string filename)
 {
 	ifstream file_stream("data/" + filename);
 	double tempReal;
@@ -380,6 +380,48 @@ void WTools::writeReal(int N, complex<double>* C, string filename)
 	file_stream.close();
 }
 
+
+// A scaled Wiener deconvolution in the Fourier domain
+// We supply the fft of the observed signal (fSignal), fft of the impulse response (fImpulse), the standard deviation of the noise (noiseSD) and a scaling constant (0<scaling<1) and it outputs the fft of deconvolved signal (fOutput) and the Fourier shrinkage multipler (multipler) which is needed for the Wavelet based deconvolution method
+// Assumption: the signal, impulse response and the output (deconvolved signal) are of the same length
+
+// TODO: implement vector valued noise signal for noise power
+//
+void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSD, double scaling, complex<double>* fOutput, complex<double>* multiplier)
+{
+
+	// a model for the original signal to be supplied to the algorithm
+	// Typically, it is same as the observed signal fSignal
+	// We supply fSignal/Var(fImpulse) instead;
+	complex<double> fOriginal;
+	double powerOriginalSq;
+	double powerImpulseSq;
+	//
+	// store a typical element of naive deconvolution
+	complex<double> fNaive;
+
+	for(int i=0; i<N; i++)
+	{
+		// a model for the original signal to be supplied to the algorithm
+		// Typically, it is same as the observed signal fSignal
+		// We supply fSignal/Var(fImpulse) instead;
+		fOriginal = fSignal[i];
+		//double fOriginal = fSignal[i]/Var(fImpulse);
+			// square of fft
+		powerOriginalSq = pow(abs(fOriginal),2);
+		powerImpulseSq = pow(abs(fImpulse[i]),2);
+
+		// perform a naive deconvolution
+		complex<double> naiveDec = fSignal[i]/fImpulse[i];
+
+		// Compute the Fourier multiplier
+		multiplier[i] = powerImpulseSq / ( powerImpulseSq + scaling * N * pow(noiseSD,2) / powerOriginalSq );
+
+		// Perform the scaled Wiener Deconvolution 
+		fOutput[i] = naiveDec * multiplier[i];
+
+	}
+}
 
 
 	

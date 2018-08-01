@@ -3,9 +3,6 @@
 #include <cmath>
 #include <WTools.hpp>
 
-
-
-
 using namespace std;
 
 int main()
@@ -63,7 +60,6 @@ int main()
 	// get a test vector
 	WTools::testvec_gen(testvec);
 
-
 	// get the wavelet filters
 	WTools::filt(512, "meyer", mey_u, mey_v, mey_util, mey_vtil);
 	// perform a forward wavelet transform
@@ -81,9 +77,9 @@ int main()
 	//WTools::writeReal(512, z, "rev");
 	//WTools::writeReal(512, err, "err");
 	
+	// reading test
 	WTools::readReal(512, empty, "rev");
 	WTools::cxprint(512, empty);
 		
-
 	return 0;
 }
