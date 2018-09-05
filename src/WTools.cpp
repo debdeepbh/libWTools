@@ -499,7 +499,7 @@ void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, in
 
 			if(!thresholdRule.compare("hard"))
 			{
-				if(wt[l].real() < thresholdVector[k].real())
+				if(abs(wt[l]) < thresholdVector[k].real())
 				{
 					output[l] = 0;
 					thresholded = thresholded + 1;
@@ -509,7 +509,7 @@ void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, in
 			}
 			else if(!thresholdRule.compare("soft"))
 			{
-				if(wt[l].real() >= thresholdVector[k].real())
+				if(abs(wt[l]) >= thresholdVector[k].real())
 				{
 					// works if the wavelet transform is real
 					// for complex, multiply by the phase term instead of +1 or -1

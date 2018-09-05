@@ -97,16 +97,16 @@ int main()
 	// test applyThreshold on a vector
 	//WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded)
 	
-	//int ssdim= 512/pow(2,3);
-	//WTools::fwt(512, emptyVec, ssdim, mey_util, mey_vtil, w);
-	//WTools::writeReal(512, w, "w");
+	// p = 3
+	int ssdim= 512/pow(2,3);
+	WTools::fwt(512, testvec, ssdim, mey_util, mey_vtil, w);
 
-	//complex<double> thresholdVector[4] = {{0.1,0},{0.1,0},{1,0},{1,0}}; 
-	//double ratioThresholded[4];
-	//complex<double> output[512];
-	//WTools::applyThreshold(512, w, "hard", 3, thresholdVector, output, ratioThresholded);
+	complex<double> thresholdVector[4] = {{1,0},{1,0},{0.1,0},{10,0}}; 
+	double ratioThresholded[4];
+	complex<double> output[512];
+	WTools::applyThreshold(512, w, "hard", 3, thresholdVector, output, ratioThresholded);
 
-	//WTools::writeReal(512, output, "output");
+	WTools::writeReal(512, output, "thresholded");
 
 		
 	return 0;
