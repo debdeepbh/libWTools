@@ -14,7 +14,7 @@ int main()
 	complex<double> C[N];
 	complex<double> temp[N];
 	complex<double> D[N/2];
-	complex<double> E[N] = {{2,0},{1,0},{3,0},{4,0},{5,0}};
+	complex<double> E[5] = {{2,0},{1,0},{3,0},{4,0},{5,0}};
 	complex<double> F[2*N];
 
 	double R[5] = {1, 5, 7, 4, 3};
@@ -30,7 +30,7 @@ int main()
 	complex<double> w[512];	// to store the wavelet transform
 	complex<double> z[512];	// to store the inverse wavelet transform
 	complex<double> err[512];	// to store the inverse wavelet transform
-	complex<double> empty[512];
+	complex<double> emptyVec[512];
 
 	// compre return 0 if strings are same
 	//if (!typestr.compare("meyer"))
@@ -59,17 +59,24 @@ int main()
 	//
 	// get a test vector
 	WTools::testvec_gen(testvec);
+	WTools::writeReal(512, testvec, "testvec");
 
 	// get the wavelet filters
-	WTools::filt(512, "meyer", mey_u, mey_v, mey_util, mey_vtil);
+	WTools::filt(512, "d10", mey_u, mey_v, mey_util, mey_vtil);
+
+	//// debug
+	//WTools::writeReal(512, mey_util, "util_test");
+	//WTools::writeReal(512, mey_vtil, "vtil_test");
+
 	// perform a forward wavelet transform
 	// sdim for 3rd stage wavelet transform
 	int sdim = 512/pow(2,3);
 	WTools::fwt(512, testvec, sdim, mey_util, mey_vtil, w);
-	//WTools::cxprint(512, w);
+	WTools::writeReal(512, w, "wt");
 
 	// perform an inverse wavelet transform
 	WTools::ifwt(512, w, sdim, mey_u, mey_v, z);
+	WTools::writeReal(512, z, "check");
 	
 	// print the error;
 	for (int k=0; k<512; k++)
@@ -77,9 +84,30 @@ int main()
 	//WTools::writeReal(512, z, "rev");
 	//WTools::writeReal(512, err, "err");
 	
-	// reading test
-	WTools::readReal(512, empty, "rev");
-	WTools::cxprint(512, empty);
+	//// reading test
+	//WTools::readReal(512, emptyVec, "rev");
+	//WTools::cxprint(512, emptyVec);
+	
+	//// circular shift test
+	//WTools::circShift(4, B, 1, C);
+	//WTools::cxprint(4, B);
+	//WTools::cxprint(4, C);
+	
+	//
+	// test applyThreshold on a vector
+	//WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded)
+	
+	//int ssdim= 512/pow(2,3);
+	//WTools::fwt(512, emptyVec, ssdim, mey_util, mey_vtil, w);
+	//WTools::writeReal(512, w, "w");
+
+	//complex<double> thresholdVector[4] = {{0.1,0},{0.1,0},{1,0},{1,0}}; 
+	//double ratioThresholded[4];
+	//complex<double> output[512];
+	//WTools::applyThreshold(512, w, "hard", 3, thresholdVector, output, ratioThresholded);
+
+	//WTools::writeReal(512, output, "output");
+
 		
 	return 0;
 }

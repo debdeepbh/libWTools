@@ -111,11 +111,23 @@ void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* ut
 	complex<double> first[z_length/2];
 	complex<double> second[z_length/2];
 
+
+
 	complex<double> convolved_first[z_length];
 	// get the first part
 	WTools::convolve(z_length, z, vtil, convolved_first);
 	//WTools::cxprint(z_length/2, z);
 	WTools::down(z_length, convolved_first, first);
+
+
+	//debug
+	if(z_length == 512)
+	{
+		WTools::writeReal(z_length/2, first, "first");
+		WTools::writeReal(z_length, z, "z_here");
+		WTools::writeReal(z_length, vtil, "vtil_here");
+		WTools::writeReal(z_length, convolved_first, "vtil_here");
+	}
 
 
 	if( z_length <= 2*sdim )
@@ -131,6 +143,8 @@ void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* ut
 	else
 	{
 		std::cout << "recursion, z_length "<< z_length << std::endl;
+
+
 		// fold util and vtil and store in util_folded
 		// and vtil_folded
 		complex<double> util_folded[z_length/2];
@@ -148,6 +162,8 @@ void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* ut
 		// recursion here in the second part
 		WTools::fwt(z_length/2, downed, sdim, util_folded, vtil_folded, second);
 	}
+
+
 
 	// concatenate the first and second part
 	for(int i=0; i<z_length/2; i++)
@@ -429,6 +445,144 @@ void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse
 
 	}
 }
+
+// inner product, the first one gets conjugates
+// i.e. <a,b> = bar(a).b
+complex<double> WTools::innerProduct(int N, complex<double>* A, complex<double>* B)
+{
+	complex<double> output=0;
+	for(int i=0; i<N; i++)
+	{
+		output +=  conj(A[i]) * B[i];
+	}
+	return output;
+}
+
+
+// circular shift of a vector at a given index
+// shift by zero keeps the vector intact
+void WTools::circShift(int N, complex<double>* A, int index, complex<double>* B)
+{
+	// check validity
+	if(index > N)
+		std::cout << "index bigger than N" << std::endl;
+	else
+	{
+		for(int i=index; i<N; i++)
+			B[i] = A[i-index];
+		for(int i=0; i<index; i++)
+			B[i] = A[N-index+i];
+	}
+}
+	
+
+// given a p-th wavelet transform wt, rule and a threshold vector of size (p+1), apply thesholds to produce output
+void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded)
+{
+	int starting = 0;
+	int len = N/2;
+	int thresholded, ending, Nj;
+
+	// for the first p finer levels
+	for(int k=0; k<p+1; k++)
+	{
+		thresholded = 0;
+
+		if(k == p)
+			ending = N; //for the coarsest level
+		else
+			ending = starting + len; //all finer levels
+
+		// first, from 0 to N/2-1
+		for(int l=starting; l<ending; l++)
+		{
+
+			if(!thresholdRule.compare("hard"))
+			{
+				if(wt[l].real() < thresholdVector[k].real())
+				{
+					output[l] = 0;
+					thresholded = thresholded + 1;
+				}
+				else
+					output[l] = wt[l];
+			}
+			else if(!thresholdRule.compare("soft"))
+			{
+				if(wt[l].real() >= thresholdVector[k].real())
+				{
+					// works if the wavelet transform is real
+					// for complex, multiply by the phase term instead of +1 or -1
+					output[l] = (complex<double>((wt[l].real() > 0 ? 1 : -1))) * (abs(wt[l].real()) - thresholdVector[k]);
+				}
+				else
+				{
+					output[l] = 0;
+					thresholded = thresholded + 1;
+				}
+			}
+			else
+			{
+				std::cout << "Wrong thresholding rule provided" << std::endl;
+			}
+		}
+
+		if (k == p)
+			Nj =  N - starting + 1;
+		else
+			Nj = len;
+
+		ratioThresholded[k] = (Nj - thresholded)/Nj;
+
+		// for the next loop
+		// lenght related to the next level wavelet coeffs
+		len = len/2;
+		starting = ending +1;
+	}
+
+}
+
+		
+//// get basis matrix of dimension (p+1)xN
+//// i-th row is the representative of the i-th stage wavelet basis
+//// translates of which gives you the actual basis element
+//void WTools::getBasisMatrix(int N, string filterType, int p, complex<double>* basisMat)
+//{
+//
+
+
+
+
+//// feed the Fourier transform of signal fSignal,
+//// fft of impulse response fImpulse
+//// for p-th stage wavelet based deconvolution
+//// noise standard deviation
+//// scaling alpha_j, level dependent, j = 1, 2, ..., p+1
+//// wavelet threshold parameter rho
+//// thresholdMethod - hard, soft
+//// store deconvolved signal in output
+//complex<double> WTools::wienForwd(int N, complex<double>* signal, comlex<double>* impulse, string filterType, int p, double noiseSD, double* scaling, double rho, string thresholdMethod, complex<double>* output)
+//{
+//	// compute the fft of given
+//	complex<double> fSignal[N];
+//	complex<double> fImpulse[N];
+//	fft(N, signal, fSignal);
+//	fft(N, impulse, fImpulse);
+//
+//
+//	// at j-th level
+//	for(int j=0; j<p+1; j++)
+//	{
+//		complex<double> fDec[N];
+//		complex<double> multiplier[N];
+//
+//		WTools::fWienDec(N, fSignal, complex<double>* fImpulse, noiseSD, scaling[j], fDec, multiplier);
+//
+//
+
+
+
+
 
 
 	

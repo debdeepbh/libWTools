@@ -88,4 +88,20 @@ using namespace std;
 	//
 	void fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSD, double scaling, complex<double>* fOutput, complex<double>* multiplier);
 
+// inner product, the first one gets conjugates
+// i.e. <a,b> = bar(a).b
+complex<double> innerProduct(int N, complex<double>* A, complex<double>* B);
+
+// circular shift of a vector at a given index
+// shift by zero keeps the vector intact
+void circShift(int N, complex<double>* A, int index, complex<double>* B);
+
+// given a p-th wavelet transform wt, rule and a threshold vector of size (p+1), apply thesholds to produce output
+void applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded);
+
+
+
+
     }; 
+
+
