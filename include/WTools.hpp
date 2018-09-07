@@ -115,6 +115,9 @@ void getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, comple
 void getRow(int N, complex<double>* matrix, int k, complex<double>* output);
 
 
+// deconvolution
+complex<double> wienForwd(int N, complex<double>* fSignal, complex<double>* fImpulse, complex<double>* basisMatrix, int p, double noiseSd, double* scaling, double* rho, string thresholdRule, complex<double>* wOutput, double* ratioThresholded);
+
     }; 
 
 

@@ -416,12 +416,12 @@ void WTools::readReal(int N, complex<double>* C, string filename)
 
 
 // A scaled Wiener deconvolution in the Fourier domain
-// We supply the fft of the observed signal (fSignal), fft of the impulse response (fImpulse), the standard deviation of the noise (noiseSD) and a scaling constant (0<scaling<1) and it outputs the fft of deconvolved signal (fOutput) and the Fourier shrinkage multipler (multipler) which is needed for the Wavelet based deconvolution method
+// We supply the fft of the observed signal (fSignal), fft of the impulse response (fImpulse), the standard deviation of the noise (noiseSd) and a scaling constant (0<scaling<1) and it outputs the fft of deconvolved signal (fOutput) and the Fourier shrinkage multipler (multipler) which is needed for the Wavelet based deconvolution method
 // Assumption: the signal, impulse response and the output (deconvolved signal) are of the same length
 
 // TODO: implement vector valued noise signal for noise power
 //
-void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSD, double scaling, complex<double>* fOutput, complex<double>* multiplier)
+void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSd, double scaling, complex<double>* fOutput, complex<double>* multiplier)
 {
 
 	complex<double> fOriginal;
@@ -456,7 +456,7 @@ void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse
 
 
 		// Compute the Fourier multiplier
-		multiplier[i] = powerImpulseSq / ( powerImpulseSq + scaling * N * pow(noiseSD,2) / powerOriginalSq );
+		multiplier[i] = powerImpulseSq / ( powerImpulseSq + scaling * N * pow(noiseSd,2) / powerOriginalSq );
 
 		// Perform the scaled Wiener Deconvolution 
 		fOutput[i] = fNaive * multiplier[i];
@@ -705,60 +705,117 @@ void WTools::getRow(int N, complex<double>* matrix, int k, complex<double>* outp
 
 
 
+// feed the Fourier transform of signal fSignal,
+// fft of impulse response fImpulse
+// for p-th stage wavelet based deconvolution
+// noise standard deviation
+// scaling alpha_j, level dependent, j = 1, 2, ..., p+1
+// wavelet threshold parameter vector rho_j, j= 1, ... , p+1
+// thresholdRule - hard, soft
+// store deconvolved signal in output
+complex<double> WTools::wienForwd(int N, complex<double>* fSignal, complex<double>* fImpulse, complex<double>* basisMatrix, int p, double noiseSd, double* scaling, double* rho, string thresholdRule, complex<double>* wOutput, double* ratioThresholded)
+{
+	// estimated wavelet transform of the signal, unthresholded
+	complex<double> wSignal[N];
+	complex<double> leakedNoiseSd[p+1];
+	int startIndex = 0;
+	int levelLength;
+	int endIndex;
+
+	// to store the basis element of j-th level
+	complex<double> jRow[N];
+	// at j-th level
+	for(int j=1; j<=(p+1); j++)
+	{
+		complex<double> fDec[N];
+		complex<double> multiplier[N];
+
+		// do a scaled Wiener deconvolution
+		WTools::fWienDec(N, fSignal, fImpulse, noiseSd, scaling[j-1], fDec, multiplier);
+
+		// prepare  beta(k), the estimate for the k-th wavelet coeff
+		// this can also be computed using FWT and choosing the appropriate indices, that would probably be faster
+		if ( j == (p+1))	// for the coarsest level
+			levelLength = N/ pow(2,p);
+		else
+			levelLength = N/ pow(2,j);
+
+		// get the jth row of the basis matrix
+		WTools::getRow(N, basisMatrix, j-1, jRow);
+
+		complex<double> beta[levelLength];
+
+		// this whole for loop can be replaced by
+		// w = fwt(ifft(fDec))
+		// beta = w(starting:ending)
+		// without the division by N in the end
+		for (int k=0; k< levelLength; k++)
+		{
+			complex<double> Psi[N];
+			if ( j == (p+1))	// for the coarsest level
+				WTools::circShift(N, jRow, pow(2,p)*k, Psi); 
+			else
+				WTools::circShift(N, jRow, pow(2,j)*k, Psi); 
+			complex<double> fPsi[N];
+			WTools::fft(N, Psi, fPsi);
+
+			// plancheral to get th j,k the coefficient
+			// of Dec
+			// will it always be a real number?
+			beta[k] = WTools::innerProduct(N, fPsi, fDec);
+		}
 
 
+		// compute the stopping index of the current level
+		if ( j == (p+1))	// for the coarsest level
+			endIndex = N;
+		else
+			endIndex = startIndex + levelLength;
+		//
+		// store beta in the wavelet transform
+		for(int l=startIndex; l<endIndex; l++)
+			wSignal[l] = beta[l-startIndex];
+
+		// update the the startIndex for the next loop
+		startIndex = endIndex;
+
+		// Now to compute the leaked noise variance
+		complex<double> firstPart[N];
+		complex<double> absMultiSq[N];
+
+		complex<double> fBasis[N];
+		WTools::fft(N, jRow, fBasis);
+
+		for(int l=0; l<N; l++)
+		{
+			// first part of the dot product
+			// No need to work with fPsi
+			// this quantity is independent of the 
+			// location parameter
+			// fPsi won't probably be avilable here
+			firstPart[l] = pow(abs(fBasis[l])/abs(fImpulse[l]), 2);
+			// second part of the dot product
+			absMultiSq[l] = pow(abs(multiplier[l]),2);
+		}
+		// noise standard deviation is scalar for now
+		// computing the leaked noise variance
+		// at j-th level
+		// in my matlab code: sigmal
+		leakedNoiseSd[j-1] = pow( 
+				pow(noiseSd, 2) * 
+				real(innerProduct(N, firstPart, absMultiSq)) / N ,
+				0.5);
+	}
 
 
+	////////////// Wavelet thresholding ////////////////
+//void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded)
 
+	// prepare the thresholdvector
+	double thresholdVector[p+1];
+	for(int l=0; l<p+1; l++)
+		thresholdVector[l] = real(leakedNoiseSd[l]) * rho[l];
 
+	WTools::applyThreshold(N, wSignal, thresholdRule, p, thresholdVector, wOutput, ratioThresholded);
+}
 
-
-
-
-
-
-//// Define sampleM as: int * sampleM[m]; //i.e. sampleM[i] is the pointer to the i-th array
-//// then: sampleM[i] = new  int
-//void WTools::testMat(int **M, int m, int n)
-//{
-//	for(int i=0; i<m; i++)
-//		for(int j=0; j<m; j++)
-//			M[i][j] = i+j;
-//}
-
-
-
-
-//// feed the Fourier transform of signal fSignal,
-//// fft of impulse response fImpulse
-//// for p-th stage wavelet based deconvolution
-//// noise standard deviation
-//// scaling alpha_j, level dependent, j = 1, 2, ..., p+1
-//// wavelet threshold parameter rho
-//// thresholdMethod - hard, soft
-//// store deconvolved signal in output
-//complex<double> WTools::wienForwd(int N, complex<double>* signal, comlex<double>* impulse, string filterType, int p, double noiseSD, double* scaling, double rho, string thresholdMethod, complex<double>* output)
-//{
-//	// compute the fft of given
-//	complex<double> fSignal[N];
-//	complex<double> fImpulse[N];
-//	fft(N, signal, fSignal);
-//	fft(N, impulse, fImpulse);
-//
-//
-//	// at j-th level
-//	for(int j=0; j<p+1; j++)
-//	{
-//		complex<double> fDec[N];
-//		complex<double> multiplier[N];
-//
-//		WTools::fWienDec(N, fSignal, complex<double>* fImpulse, noiseSD, scaling[j], fDec, multiplier);
-//
-//
-
-
-
-
-
-
-	
