@@ -6,6 +6,12 @@
 
 #include "WTools.hpp"
 
+// Copies the first N elements of one vector into other 
+void WTools::copyVector(int N, complex<double>* source, complex<double>* destination)
+{
+	for(int i=0; i<N; i++)
+		destination[i] = source[i];
+}
 
 // Print a complex vector
 void WTools::cxprint(int N, complex<double>* A)
@@ -94,7 +100,7 @@ void WTools::fold(int N, complex<double>* A, complex<double>* B) {
 	// check even
 	if( N%2 == 1) {
 		// error message
-		std::cout << "First vector is not of even lenght" << std::endl;
+		std::cout << "First vector is not of even length" << std::endl;
 	} else {
 		for(int k=0; k<N/2; k++) {
 			B[k] = A[k] + A[N/2+k];
@@ -543,12 +549,170 @@ void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, in
 }
 
 		
-//// get basis matrix of dimension (p+1)xN
-//// i-th row is the representative of the i-th stage wavelet basis
-//// translates of which gives you the actual basis element
-//void WTools::getBasisMatrix(int N, string filterType, int p, complex<double>* basisMat)
+// get the basis matrix for p-th stage wavelet tansform
+// level = 1, 2, ..., (p+1)
+// (p+1)th level is the coarsest level
+// u, v are the filters
+// Structure of the basisMatrix ///////////
+// basisMatrix is N*(p+1) length, but we are storing it as a linear array
+// A sample basisMatrix: complex<double> sampleMat[(p+1)*N];
+// The last row corresponds to the coarsest wavelet level
+// To get the j-th row (j=0,...,p) of this matrix, print
+// from (j*N) to (j*N + N) i.e. (for i=0; i<N; i++){ jRow[i] = sampleMat[j*N+i];}
+// Use getRow(N, sampleMat, k, output) to get the k-th row
+void WTools::getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, int level, complex<double>* basisMatrix)
+{
+	complex<double> U[p][N];
+       	complex<double> V[p][N];	
+
+	// copy u, v into the first row of U and V
+	for(int i=0; i<N; i++)
+	{
+		U[0][i] = u[i];
+		V[0][i] = v[i];
+	}
+
+	// for U[k][], ,k=2,..,p
+
+	for(int k=2; k<=(p); k++)
+	{
+
+		complex<double> u_folded[N];
+		complex<double> v_folded[N];
+		// copy u to u_folded here
+		WTools::copyVector(N, u, u_folded);
+		WTools::copyVector(N, v, v_folded);
+
+		// for the upcoming for loop
+		complex<double> uTempVec[N];
+		complex<double> vTempVec[N];
+		int lengthNow = N;
+
+		// fold it k-1 times
+		for(int j=1; j<=(k-1); j++)
+		{
+			// first lengthNow elements of u_folded are folded into tempVec
+			// only lengthNow/2 first elements of tempVec are relevant now
+			WTools::fold(lengthNow, u_folded, uTempVec);
+			WTools::fold(lengthNow, v_folded, vTempVec);
+			// copy the first lengthNow/2 elements to u_folded
+			WTools::copyVector(lengthNow/2, uTempVec, u_folded);
+			WTools::copyVector(lengthNow/2, vTempVec, v_folded);
+			// update lengthNow
+			lengthNow = lengthNow/2;
+		}
+
+
+		// Now we need to upsample k-1 times
+		complex<double> u_upped[N];
+		complex<double> v_upped[N];
+		// copy final u_folded to u_upped here
+		WTools::copyVector(lengthNow, u_folded, u_upped);
+		WTools::copyVector(lengthNow, v_folded, v_upped);
+
+		// k-1 times
+		for(int j=1; j<=(k-1); j++)
+		{
+			// first lengthNow elements of u_folded are upsampled into tempVec
+			// only lengthNow first elements of tempVec are relevant now
+			WTools::up(lengthNow, u_upped, uTempVec);
+			WTools::up(lengthNow, v_upped, vTempVec);
+			// copy the first lengthNow*2 relevant elements to u_folded
+			WTools::copyVector(lengthNow*2, uTempVec, u_upped);
+			WTools::copyVector(lengthNow*2, vTempVec, v_upped);
+			// update lengthNow, current length of the vector after upsampling
+			lengthNow = lengthNow*2;
+		}
+
+		//// good idea to check the final length to see if N
+		//std::cout << lengthNow << std::endl;
+
+		// copy folded and upped vector to matrix U, V
+		for(int j=0; j<N; j++)
+		{
+			U[k-1][j] = u_upped[j];
+			V[k-1][j] = v_upped[j];
+			// last index of U is (p-1) i.e p total
+		}
+	}
+
+	// Now we compute Psi, the first p rows of the basisMatrix
+	complex<double> f_old[N];
+	complex<double> g_old[N];
+
+	WTools::copyVector(N, v, f_old);
+	WTools::copyVector(N, u, g_old);
+
+	// first row of Psi is f_old
+	for(int j=0; j<N; j++)
+		basisMatrix[j] = f_old[j];
+
+	// to store jth row of matrix U
+	complex<double> ujthRow[N];
+	complex<double> vjthRow[N];
+
+	// for the loop
+	complex<double> f_new[N];
+	complex<double> g_new[N];
+
+	// other rows of Psi
+	for(int j=1; j<p; j++)
+	{
+		for(int l=0; l<N; l++)
+		{
+			ujthRow[l] = U[j][l];
+			vjthRow[l] = V[j][l];
+		}
+
+		WTools::convolve(N, g_old, vjthRow, f_new);
+		WTools::convolve(N, g_old, ujthRow, g_new);
+
+		// store f_new at j-th row of basisMatrix
+		for(int l=0; l<N; l++)
+			basisMatrix[j*N+l] = f_new[l];
+
+		// loop update
+		WTools::copyVector(N, f_new, f_old);
+		WTools::copyVector(N, g_new, g_old);
+	}
+
+	// last row of the basisMatrix
+	for(int l=0; l<N; l++)
+		basisMatrix[p*N+l] = g_old[l];
+}
+
+// get the k-th row of a matrix stored in a linear way
+// when the row-length of the matrix is N
+// and store it in output
+// as in getBasisMatrix
+void WTools::getRow(int N, complex<double>* matrix, int k, complex<double>* output)
+{
+	for(int j=0; j<N; j++)
+		output[j] = matrix[k*N+j];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//// Define sampleM as: int * sampleM[m]; //i.e. sampleM[i] is the pointer to the i-th array
+//// then: sampleM[i] = new  int
+//void WTools::testMat(int **M, int m, int n)
 //{
-//
+//	for(int i=0; i<m; i++)
+//		for(int j=0; j<m; j++)
+//			M[i][j] = i+j;
+//}
 
 
 

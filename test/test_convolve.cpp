@@ -108,6 +108,13 @@ int main()
 
 	WTools::writeReal(512, output, "thresholded");
 
+	complex<double>* Mat[4][5];
+	// can fold into a vector or arbitrary length
+	//WTools::fold(4, A, Mat[0][]);
+	//WTools::testMat(Mat, 4, 5);
+	//
+
+
 		
 	return 0;
 }

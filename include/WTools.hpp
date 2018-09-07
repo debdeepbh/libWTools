@@ -29,6 +29,9 @@ using namespace std;
         /// \brief A wrapper to perform convolution on raw double points
         ///
         auto deconvolve(const double* input, const double* response) -> double*;
+	
+	// Copies the first N elements of one vector into other 
+	void copyVector(int N, complex<double>* source, complex<double>* destination);
 
 	// takes a real vector and turns it into a complex vector
 	void makeComplex(int N, double* R, complex<double>* C);
@@ -100,6 +103,14 @@ void circShift(int N, complex<double>* A, int index, complex<double>* B);
 void applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded);
 
 
+// get the basis matrix
+void getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, int level, complex<double>* basisMatrix);
+//
+// get the k-th row of a matrix stored in a linear way
+// when the row-length of the matrix is N
+// and store it in output
+// as in getBasisMatrix
+void getRow(int N, complex<double>* matrix, int k, complex<double>* output);
 
 
     }; 
