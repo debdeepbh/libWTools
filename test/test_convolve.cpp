@@ -101,10 +101,10 @@ int main()
 	int ssdim= 512/pow(2,3);
 	WTools::fwt(512, testvec, ssdim, mey_util, mey_vtil, w);
 
-	complex<double> thresholdVector[4] = {{1,0},{1,0},{0.1,0},{10,0}}; 
+	double thresholdVector[4] = {1, 1, 0.1, 10};
 	double ratioThresholded[4];
 	complex<double> output[512];
-	WTools::applyThreshold(512, w, "hard", 3, thresholdVector, output, ratioThresholded);
+	WTools::applyThreshold(512, w, "soft", 3, thresholdVector, output, ratioThresholded);
 
 	WTools::writeReal(512, output, "thresholded");
 

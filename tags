@@ -1,0 +1,55 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BIN_DIR	Makefile	/^BIN_DIR = bin$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -Wall -Wextra -Wshadow -Wold-style-cast -Wcast-align$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS = -I$(INCLUDE_DIR)$/;"	m
+CXX	Makefile	/^CXX = g++$/;"	m
+DEP_FLAGS	Makefile	/^DEP_FLAGS = -MMD -MP$/;"	m
+DIRS	Makefile	/^DIRS = $(shell mkdir -p $(BIN_DIR) $(OBJ_DIR) $(LIB_DIR))$/;"	m
+EXT	Makefile	/^		EXT = dylib$/;"	m
+EXT	Makefile	/^		EXT = so$/;"	m
+INCLUDE_DIR	Makefile	/^INCLUDE_DIR = include$/;"	m
+LIBS	Makefile	/^LIBS = -lfftw3 #\/usr\/lib\/x86_64-linux-gnu\/libfftw3.so$/;"	m
+LIB_DIR	Makefile	/^LIB_DIR = lib$/;"	m
+LIB_NAME	Makefile	/^LIB_NAME = libWTools.$(EXT)$/;"	m
+LIB_TYPE	Makefile	/^		LIB_TYPE = dynamiclib$/;"	m
+LIB_TYPE	Makefile	/^		LIB_TYPE = shared$/;"	m
+OBJ	Makefile	/^OBJ = $(SRC:$(SRC_DIR)\/%.cpp=$(OBJ_DIR)\/%.o)$/;"	m
+OBJ_DIR	Makefile	/^OBJ_DIR = obj$/;"	m
+SRC	Makefile	/^SRC = $(wildcard $(SRC_DIR)\/*.cpp)$/;"	m
+SRC_DIR	Makefile	/^SRC_DIR = src$/;"	m
+TEST_BIN	Makefile	/^TEST_BIN = $(BIN_DIR)\/testFWTransform$/;"	m
+TEST_DIR	Makefile	/^TEST_DIR = test$/;"	m
+TEST_OBJ	Makefile	/^TEST_OBJ = $(TEST_SRC:$(TEST_DIR)\/%.cpp=$(OBJ_DIR)\/%.o)$/;"	m
+TEST_SRC	Makefile	/^TEST_SRC = $(wildcard $(TEST_DIR)\/*.cpp)$/;"	m
+UNAME_S	Makefile	/^    UNAME_S := $(shell uname -s)$/;"	m
+WTools	include/WTools.hpp	/^    namespace WTools{$/;"	n
+applyThreshold	src/WTools.cpp	/^void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, double* thresholdVector, complex<double>* output, double* ratioThresholded)$/;"	f	class:WTools
+circShift	src/WTools.cpp	/^void WTools::circShift(int N, complex<double>* A, int index, complex<double>* B)$/;"	f	class:WTools
+convolve	src/WTools.cpp	/^void WTools::convolve(int N, complex<double>* A, complex<double>* B, complex<double>* C)$/;"	f	class:WTools
+copyVector	src/WTools.cpp	/^void WTools::copyVector(int N, complex<double>* source, complex<double>* destination)$/;"	f	class:WTools
+cxprint	src/WTools.cpp	/^void WTools::cxprint(int N, complex<double>* A)$/;"	f	class:WTools
+down	src/WTools.cpp	/^void WTools::down(int N, complex<double>* A, complex<double>* B) {$/;"	f	class:WTools
+fWienDec	src/WTools.cpp	/^void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSd, double scaling, complex<double>* fOutput, complex<double>* multiplier)$/;"	f	class:WTools
+fft	src/WTools.cpp	/^void WTools::fft(int N, complex<double>* A, complex<double>* B)$/;"	f	class:WTools
+filt	src/WTools.cpp	/^void WTools::filt(int N, string filterType, complex<double>* output_u, complex<double>* output_v, complex<double>* output_util, complex<double>* output_vtil)$/;"	f	class:WTools
+fold	src/WTools.cpp	/^void WTools::fold(int N, complex<double>* A, complex<double>* B) {$/;"	f	class:WTools
+fwt	src/WTools.cpp	/^void WTools::fwt(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w)$/;"	f	class:WTools
+getBasisMatrix	src/WTools.cpp	/^void WTools::getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, complex<double>* basisMatrix)$/;"	f	class:WTools
+getRow	src/WTools.cpp	/^void WTools::getRow(int N, complex<double>* matrix, int k, complex<double>* output)$/;"	f	class:WTools
+getother	src/WTools.cpp	/^void WTools::getother(int N, complex<double>* u, complex<double>* v)$/;"	f	class:WTools
+ifft	src/WTools.cpp	/^void WTools::ifft(int N, complex<double>* A, complex<double>* B)$/;"	f	class:WTools
+ifwt	src/WTools.cpp	/^void WTools::ifwt(int z_length, complex<double>* z, int sdim, complex<double>* u, complex<double>* v, complex<double>* w)$/;"	f	class:WTools
+innerProduct	src/WTools.cpp	/^complex<double> WTools::innerProduct(int N, complex<double>* A, complex<double>* B)$/;"	f	class:WTools
+main	test/test_convolve.cpp	/^int main()$/;"	f
+makeComplex	src/WTools.cpp	/^void WTools::makeComplex(int N, double* R, complex<double>* C)$/;"	f	class:WTools
+readReal	src/WTools.cpp	/^void WTools::readReal(int N, complex<double>* C, string filename)$/;"	f	class:WTools
+testvec_gen	src/WTools.cpp	/^void WTools::testvec_gen(complex<double>* testvec)$/;"	f	class:WTools
+up	src/WTools.cpp	/^void WTools::up(int N, complex<double>* A, complex<double>* B) {$/;"	f	class:WTools
+wienForwd	src/WTools.cpp	/^complex<double> WTools::wienForwd(int N, complex<double>* fSignal, complex<double>* fImpulse, complex<double>* basisMatrix, int p, double noiseSd, double* scaling, double* rho, string thresholdRule, complex<double>* wOutput, double* ratioThresholded)$/;"	f	class:WTools
+writeComplex	src/WTools.cpp	/^void WTools::writeComplex(int N, complex<double>* C, string filename)$/;"	f	class:WTools
+writeReal	src/WTools.cpp	/^void WTools::writeReal(int N, complex<double>* C, string filename)$/;"	f	class:WTools

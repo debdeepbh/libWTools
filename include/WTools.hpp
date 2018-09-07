@@ -102,7 +102,7 @@ complex<double> innerProduct(int N, complex<double>* A, complex<double>* B);
 void circShift(int N, complex<double>* A, int index, complex<double>* B);
 
 // given a p-th wavelet transform wt, rule and a threshold vector of size (p+1), apply thesholds to produce output
-void applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded);
+void applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, double* thresholdVector, complex<double>* output, double* ratioThresholded);
 
 
 // get the basis matrix

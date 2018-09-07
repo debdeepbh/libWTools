@@ -495,7 +495,7 @@ void WTools::circShift(int N, complex<double>* A, int index, complex<double>* B)
 	
 
 // given a p-th wavelet transform wt, rule and a threshold vector of size (p+1), apply thesholds to produce output
-void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded)
+void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, double* thresholdVector, complex<double>* output, double* ratioThresholded)
 {
 	int starting = 0;
 	int len = N/2;
@@ -517,7 +517,7 @@ void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, in
 
 			if(!thresholdRule.compare("hard"))
 			{
-				if(abs(wt[l]) < thresholdVector[k].real())
+				if(abs(wt[l]) < thresholdVector[k])
 				{
 					output[l] = 0;
 					thresholded = thresholded + 1;
@@ -527,7 +527,7 @@ void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, in
 			}
 			else if(!thresholdRule.compare("soft"))
 			{
-				if(abs(wt[l]) >= thresholdVector[k].real())
+				if(abs(wt[l]) >= thresholdVector[k])
 				{
 					// works if the wavelet transform is real
 					// for complex, multiply by the phase term instead of +1 or -1
@@ -710,7 +710,7 @@ void WTools::getRow(int N, complex<double>* matrix, int k, complex<double>* outp
 // for p-th stage wavelet based deconvolution
 // noise standard deviation
 // scaling alpha_j, level dependent, j = 1, 2, ..., p+1
-// wavelet threshold parameter vector rho_j, j= 1, ... , p+1
+// wavelet threshold parameter vector rho_j, j= 1, ... , p+1 (usually, rho_j = 1 for all j)
 // thresholdRule - hard, soft
 // store deconvolved signal in output
 complex<double> WTools::wienForwd(int N, complex<double>* fSignal, complex<double>* fImpulse, complex<double>* basisMatrix, int p, double noiseSd, double* scaling, double* rho, string thresholdRule, complex<double>* wOutput, double* ratioThresholded)
@@ -740,15 +740,18 @@ complex<double> WTools::wienForwd(int N, complex<double>* fSignal, complex<doubl
 		else
 			levelLength = N/ pow(2,j);
 
+		// compute the stopping index of the current level
+		if ( j == (p+1))	// for the coarsest level
+			endIndex = N;
+		else
+			endIndex = startIndex + levelLength;
+
 		// get the jth row of the basis matrix
 		WTools::getRow(N, basisMatrix, j-1, jRow);
 
+		///////// start segment ///////////////////////////
 		complex<double> beta[levelLength];
 
-		// this whole for loop can be replaced by
-		// w = fwt(ifft(fDec))
-		// beta = w(starting:ending)
-		// without the division by N in the end
 		for (int k=0; k< levelLength; k++)
 		{
 			complex<double> Psi[N];
@@ -764,17 +767,42 @@ complex<double> WTools::wienForwd(int N, complex<double>* fSignal, complex<doubl
 			// will it always be a real number?
 			beta[k] = WTools::innerProduct(N, fPsi, fDec);
 		}
-
-
-		// compute the stopping index of the current level
-		if ( j == (p+1))	// for the coarsest level
-			endIndex = N;
-		else
-			endIndex = startIndex + levelLength;
-		//
 		// store beta in the wavelet transform
+		// Here, we divide by N because
+		// in Matlab, Plancheral holds with a factor of N
+		// i.e. <a,b> = <ahat, bhat>/N
+		// if we use fwt to get beta, we do not divide by N
 		for(int l=startIndex; l<endIndex; l++)
-			wSignal[l] = beta[l-startIndex];
+			wSignal[l] = beta[l-startIndex]/ complex<double>(N);
+
+		////////// end segment /////////////////////////////
+
+		////////////////////////////////////////////////////
+		//// Caution:: need to redefine the arguments to 
+		//// involve util and vtil along with basisMatrix
+		////  use fwt instead ////////////////
+		//// this whole for loop can be replaced by
+		//// w = fwt(ifft(fDec))
+		//// beta = w(starting:ending)
+		//// without the division by N in the end
+		//// but it needs util and vtil
+		//// ///////////////////////////////////////////
+		//complex<double> Dec[N]; 
+		//// get the inverse Fourier transform
+		//WTools::ifft(N, fDec, Dec);
+		//
+		//complex<double> wDec[N];
+		//int sdim = N/pow(2,p);
+		//
+		//// get the wavelet transform using util and vtil
+		//WTools::fwt(N, Dec, sdim, util, vtil, wDec);
+//void WTools::f//wt(int z_length, complex<double>* z, int sdim, complex<double>* util, complex<double>* vtil, complex<double>* w)
+
+		//for(int l=startIndex; l<endIndex; l++)
+		//	wSignal[l] = wDec[l-startIndex];
+		//
+		///////////////////////////////////////////////
+		//////////////////////////////////////////////////////
 
 		// update the the startIndex for the next loop
 		startIndex = endIndex;
@@ -810,12 +838,13 @@ complex<double> WTools::wienForwd(int N, complex<double>* fSignal, complex<doubl
 
 	////////////// Wavelet thresholding ////////////////
 //void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, complex<double>* thresholdVector, complex<double>* output, double* ratioThresholded)
-
-	// prepare the thresholdvector
+// prepare the thresholdvector
 	double thresholdVector[p+1];
 	for(int l=0; l<p+1; l++)
 		thresholdVector[l] = real(leakedNoiseSd[l]) * rho[l];
 
 	WTools::applyThreshold(N, wSignal, thresholdRule, p, thresholdVector, wOutput, ratioThresholded);
 }
+
+
 
