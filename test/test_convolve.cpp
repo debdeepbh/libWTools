@@ -125,6 +125,31 @@ int main()
 	//}
 	
 
+//void WTools::fWienDec(int N, complex<double>* fSignal, complex<double>* fImpulse, double noiseSD, double scaling, complex<double>* fOutput, complex<double>* multiplier)
+	//int n = 1024;
+	//complex<double> signal[n];
+	//complex<double> imp[n];
+	//complex<double> deconv[n];
+	//complex<double> mult[n];
+	//complex<double> fsignal[n];
+	//complex<double> fimp[n];
+	//complex<double> fdeconv[n];
+	//complex<double> fdeconvIm[n];
+	//WTools::readReal(n, signal, "signal");
+	//WTools::readReal(n, imp, "imp");
+	//WTools::fft(n, signal, fsignal); 
+	//WTools::fft(n, imp, fimp); 
+	//WTools::fWienDec(n, fsignal, fimp, 11.2, 1, fdeconv, mult);
+	//WTools::writeComplex(n, fdeconv, "fdeconv");
+	//for(int i=0; i<n; i++)
+	//	fdeconvIm[i] = imag(fdeconv[i]) ;
+	//WTools::writeReal(n, fdeconvIm, "fdeconvIm");
+
+	//WTools::ifft(n, fdeconv, deconv);
+	//WTools::writeReal(n, deconv, "deconv");
+	// scaled wiener deconvolution works!!
+
+
 		
 	return 0;
 }

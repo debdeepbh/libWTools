@@ -76,6 +76,8 @@ using namespace std;
 	// a test vector of length 512
 	void testvec_gen(complex<double>* testvec);
 
+	// write the complex part of a complex array C to ./data/filename
+	void writeComplex(int N, complex<double>* C, string filename);
 
 	// write the real part of a complex array C to ./data/filename
 	void writeReal(int N, complex<double>* C, string filename);

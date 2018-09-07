@@ -376,6 +376,18 @@ void WTools::testvec_gen(complex<double>* testvec)
 	}
 }
 
+// write the complex part of a complex array C to ./data/filename
+void WTools::writeComplex(int N, complex<double>* C, string filename)
+{
+	ofstream file_stream("data/" + filename);
+	for(int i; i<N; i++)
+	{
+		// force to show the positive sign of the imaginary part
+		file_stream << C[i].real() << showpos << imag(C[i]) << "i" << noshowpos << std::endl;
+	}
+	file_stream.close();
+}
+
 // write the real part of a complex array C to ./data/filename
 void WTools::writeReal(int N, complex<double>* C, string filename)
 {
