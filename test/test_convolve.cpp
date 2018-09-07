@@ -114,6 +114,16 @@ int main()
 	//WTools::testMat(Mat, 4, 5);
 	//
 
+	// getBasisMatrix works!
+	//int vLength = 512, p=3;
+	//complex<double> basisMat[vLength*(p+1)];
+	//WTools::getBasisMatrix(vLength, mey_u, mey_v, p, basisMat);
+	//for(int i=0; i<p+1; i++)
+	//{
+	//	WTools::getRow(vLength, basisMat, i, emptyVec);
+	//	WTools::writeReal(vLength, emptyVec, "basis" + to_string(i));
+	//}
+	
 
 		
 	return 0;

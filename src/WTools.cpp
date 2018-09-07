@@ -560,7 +560,7 @@ void WTools::applyThreshold(int N, complex<double>* wt, string thresholdRule, in
 // To get the j-th row (j=0,...,p) of this matrix, print
 // from (j*N) to (j*N + N) i.e. (for i=0; i<N; i++){ jRow[i] = sampleMat[j*N+i];}
 // Use getRow(N, sampleMat, k, output) to get the k-th row
-void WTools::getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, int level, complex<double>* basisMatrix)
+void WTools::getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, complex<double>* basisMatrix)
 {
 	complex<double> U[p][N];
        	complex<double> V[p][N];	

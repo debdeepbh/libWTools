@@ -104,7 +104,7 @@ void applyThreshold(int N, complex<double>* wt, string thresholdRule, int p, com
 
 
 // get the basis matrix
-void getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, int level, complex<double>* basisMatrix);
+void getBasisMatrix(int N, complex<double>* u, complex<double>* v, int p, complex<double>* basisMatrix);
 //
 // get the k-th row of a matrix stored in a linear way
 // when the row-length of the matrix is N
